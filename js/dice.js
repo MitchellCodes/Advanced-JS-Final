@@ -44,6 +44,10 @@ function createNewGame() {
     turnNumber = [0];
     player1Score = [0];
     player2Score = [0];
+    document.getElementById("score-chart").remove();
+    var canvas = document.createElement("canvas");
+    canvas.id = "score-chart";
+    document.getElementById("chart").appendChild(canvas);
     document.getElementById("roll").disabled = false;
     document.getElementById("hold").disabled = false;
     document.getElementById("winner-output").innerText = "";

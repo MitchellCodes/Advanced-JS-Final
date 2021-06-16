@@ -60,10 +60,14 @@ window.onload = function(){
 }
 
 function createNewGame(){
-    // set default values for arrays
+    // set default values for arrays and clear any existing chart
     turnNumber = [0];
     player1Score = [0];
     player2Score = [0];
+    document.getElementById("score-chart").remove();
+    let canvas = document.createElement("canvas");
+    canvas.id = "score-chart";
+    document.getElementById("chart").appendChild(canvas);
 
     // reset the roll and hold buttons if someone won the last game
     (<HTMLButtonElement>document.getElementById("roll")).disabled = false;
