@@ -1,7 +1,6 @@
 var turnNumber = [0];
 var player1Score = [0];
 var player2Score = [0];
-var turnCounter = 0;
 function generateRandomValue(minValue, maxValue) {
     var random = Math.random();
     random = Math.floor(random * maxValue) + minValue;
@@ -28,11 +27,7 @@ function changePlayers() {
         currentPlayerName = player2Name;
     }
     currentPlayerSpan.innerText = currentPlayerName;
-    turnCounter++;
-    if (turnCounter == 2) {
-        turnNumber.push(turnNumber.length);
-        turnCounter = 0;
-    }
+    turnNumber.push(turnNumber.length);
 }
 window.onload = function () {
     var newGameBtn = document.getElementById("new_game");
@@ -47,6 +42,8 @@ function createNewGame() {
     document.getElementById("score-chart").remove();
     var canvas = document.createElement("canvas");
     canvas.id = "score-chart";
+    canvas.width = 400;
+    canvas.height = 400;
     document.getElementById("chart").appendChild(canvas);
     document.getElementById("roll").disabled = false;
     document.getElementById("hold").disabled = false;
@@ -81,10 +78,10 @@ function rollDie() {
     var roll = generateRandomValue(1, 6);
     dieBox.value = roll.toString();
     if (roll == 1) {
-        changePlayers();
         currTotal = 0;
         var currentScore = parseInt(getCurrentPlayerScoreBox().value);
         getCurrentPlayerScoreArray().push(currentScore);
+        changePlayers();
     }
     if (roll > 1) {
         currTotal += roll;
@@ -114,7 +111,10 @@ function holdDie() {
 function isWinner() {
     var currentScore = parseInt(getCurrentPlayerScoreBox().value);
     var currentTotal = getTotal();
-    if (currentScore + currentTotal >= 100) {
+    var combinedScore = currentScore + currentTotal;
+    if (combinedScore >= 100) {
+        turnNumber.push(turnNumber.length);
+        getCurrentPlayerScoreArray().push(combinedScore);
         return true;
     }
     return false;
@@ -129,20 +129,42 @@ function getCurrentPlayerScoreBox() {
     return currentPlayerScoreBox;
 }
 function drawChart() {
+    var halfTotalTurns = Math.ceil(turnNumber.length / 2) + 1;
+    var newTurnNumber = turnNumber.splice(0, halfTotalTurns);
     var scoreChart = new Chart(document.getElementById("score-chart"), {
         type: 'line',
         data: {
-            labels: turnNumber,
+            labels: newTurnNumber,
             datasets: [
                 {
                     label: 'Player 1',
                     data: player1Score,
+                    borderColor: 'rgb(250, 150, 150)'
                 },
                 {
                     label: 'Player 2',
                     data: player2Score,
+                    borderColor: 'rgb(150, 150, 250)'
                 }
             ]
+        },
+        options: {
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Turn'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Score'
+                    }
+                }
+            }
         }
     });
 }

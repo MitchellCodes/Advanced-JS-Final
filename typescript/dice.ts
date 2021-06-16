@@ -1,7 +1,6 @@
 let turnNumber:number[] = [0];
 let player1Score:number[] = [0];
 let player2Score:number[] = [0];
-let turnCounter = 0;
 
 function generateRandomValue(minValue:number, maxValue:number):number{
     var random = Math.random(); // between 0 and 0.99
@@ -42,12 +41,9 @@ function changePlayers():void{
     }
     currentPlayerSpan.innerText = currentPlayerName;
     
-    // keep track of that turn it is
-    turnCounter++;
-    if (turnCounter == 2) { // go to the next turn after both players get to roll
-        turnNumber.push(turnNumber.length);
-        turnCounter = 0;
-    }
+    // keep track of the total number of turns taken
+    // (will be double the number of turns)
+    turnNumber.push(turnNumber.length);
 }
 
 window.onload = function(){
@@ -67,6 +63,8 @@ function createNewGame(){
     document.getElementById("score-chart").remove();
     let canvas = document.createElement("canvas");
     canvas.id = "score-chart";
+    canvas.width = 400;
+    canvas.height = 400;
     document.getElementById("chart").appendChild(canvas);
 
     // reset the roll and hold buttons if someone won the last game
@@ -123,12 +121,12 @@ function rollDie():void{
     //  change players
     //  set current total to 0
     if (roll == 1) {
-        changePlayers();
         currTotal = 0;
 
         // append the current player's previous score to their score array
         let currentScore = parseInt(getCurrentPlayerScoreBox().value);
         getCurrentPlayerScoreArray().push(currentScore);
+        changePlayers();
     }
     
     //if the roll is greater than 1
@@ -182,7 +180,12 @@ function holdDie():void{
 function isWinner():boolean {
     let currentScore = parseInt(getCurrentPlayerScoreBox().value);
     let currentTotal = getTotal();
-    if (currentScore + currentTotal >= 100) {
+    let combinedScore = currentScore + currentTotal;
+    if (combinedScore >= 100) {
+        // update the turn array and the current player's
+        // score array if they end their turn by winning
+        turnNumber.push(turnNumber.length);
+        getCurrentPlayerScoreArray().push(combinedScore);
         return true;
     }
     return false;
@@ -202,21 +205,43 @@ function getCurrentPlayerScoreBox():HTMLInputElement {
 }
 
 function drawChart() {
+    let halfTotalTurns = Math.ceil(turnNumber.length / 2) + 1;
+    let newTurnNumber = turnNumber.splice(0, halfTotalTurns);
     // draw the chart
     let scoreChart = new Chart(document.getElementById("score-chart"), {
         type: 'line',
         data: {
-            labels: turnNumber,
+            labels: newTurnNumber,
             datasets: [
                 {
                     label: 'Player 1',
                     data: player1Score,
+                    borderColor: 'rgb(250, 150, 150)'
                 },
                 {
                     label: 'Player 2',
                     data: player2Score,
+                    borderColor: 'rgb(150, 150, 250)'
                 }
             ]
+        },
+        options: {
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Turn'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Score'
+                    }
+                }
+            }
         }
     });
 }
