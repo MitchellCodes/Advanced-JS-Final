@@ -46,7 +46,43 @@
         <div id="chart">
             <canvas id="score-chart" width="400" height="400"></canvas>
         </div>
-        <script src="js/chart.js"></script>
+        <script>
+            // draw the chart
+            let scoreChart = new Chart(document.getElementById("score-chart"), {
+                type: 'line',
+                data: {
+                    labels: [], // int[] for turn number
+                    datasets: [
+                        {
+                            label: 'Player 1',
+                            data: [], // int[] for player 1's score at the end of their turn
+                        },
+                        {
+                            label: 'Player 2',
+                            data: [], // int[] for player 2's score at the end of their turn
+                        }
+                    ]
+                }
+            });
+
+            // addData and removeData function provided in the documentation at
+            // https://www.chartjs.org/docs/latest/developers/updates.html
+            function addData(chart, label, data) {
+                chart.data.labels.push(label);
+                chart.data.datasets.forEach((dataset) => {
+                    dataset.data.push(data);
+                });
+                chart.update();
+            }
+
+            function removeData(chart) {
+                chart.data.labels.pop();
+                chart.data.datasets.forEach((dataset) => {
+                    dataset.data.pop();
+                });
+                chart.update();
+            }
+        </script>
     </main>
 </body>
 </html>

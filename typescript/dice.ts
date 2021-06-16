@@ -16,8 +16,13 @@ function getTotal():number {
     return parseInt((<HTMLInputElement>document.getElementById("total")).value);
 }
 
+// helper function to get the current player's name
+function getCurrentPlayerName():string {
+    return document.getElementById("current").innerText;
+}
+
 function changePlayers():void{
-    let currentPlayerName = document.getElementById("current").innerText;
+    let currentPlayerName = getCurrentPlayerName();
     let currentPlayerSpan = document.getElementById("current");
     let player1Name = getPlayerName("player1");
     let player2Name = getPlayerName("player2");
@@ -64,6 +69,7 @@ function createNewGame(){
     if (player1Name.length >= 1 && player2Name.length >= 1) {
         //if both players do have a name start the game!
         document.getElementById("turn").classList.add("open");
+        document.getElementById("chart").removeAttribute("hidden");
         (<HTMLInputElement>document.getElementById("total")).value = "0";
         //lock in player names and then change players
         document.getElementById("player1").setAttribute("disabled", "disabled");
@@ -104,11 +110,17 @@ function rollDie():void{
 
     // check if a player wins
     if (isWinner()) {
-        let currentPlayerName = document.getElementById("current").innerText
-        document.getElementById("winner-output").innerText =  currentPlayerName + " wins!";
-        (<HTMLButtonElement>document.getElementById("roll")).disabled = true;
-        (<HTMLButtonElement>document.getElementById("hold")).disabled = true;
+        endGame();
     }
+}
+
+// function to output the results of the game when someone wins, and
+// disables the roll and hold buttons
+function endGame() {
+    let currentPlayerName = getCurrentPlayerName();
+    document.getElementById("winner-output").innerText =  currentPlayerName + " wins!";
+    (<HTMLButtonElement>document.getElementById("roll")).disabled = true;
+    (<HTMLButtonElement>document.getElementById("hold")).disabled = true;
 }
 
 function holdDie():void{
@@ -120,6 +132,9 @@ function holdDie():void{
 
     let newScore = parseInt(currentScore.value) + currTotal;
     currentScore.value = newScore.toString();
+
+    // update the chart
+
 
     //reset the turn total to 0
     currTotal = 0;
@@ -141,7 +156,7 @@ function isWinner():boolean {
 
 // helper function to get the current player's score input element
 function getCurrentPlayerScoreBox():HTMLInputElement {
-    let currentPlayerName = document.getElementById("current").innerText;
+    let currentPlayerName = getCurrentPlayerName();
     let player1Name = getPlayerName("player1");
     let currentPlayerScoreBox = <HTMLInputElement>document.getElementById("score1"); // default to player 1's score box
 

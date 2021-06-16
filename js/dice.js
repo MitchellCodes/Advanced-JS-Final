@@ -9,8 +9,11 @@ function getPlayerName(player) {
 function getTotal() {
     return parseInt(document.getElementById("total").value);
 }
+function getCurrentPlayerName() {
+    return document.getElementById("current").innerText;
+}
 function changePlayers() {
-    var currentPlayerName = document.getElementById("current").innerText;
+    var currentPlayerName = getCurrentPlayerName();
     var currentPlayerSpan = document.getElementById("current");
     var player1Name = getPlayerName("player1");
     var player2Name = getPlayerName("player2");
@@ -39,6 +42,7 @@ function createNewGame() {
     var player2Name = getPlayerName("player2");
     if (player1Name.length >= 1 && player2Name.length >= 1) {
         document.getElementById("turn").classList.add("open");
+        document.getElementById("chart").removeAttribute("hidden");
         document.getElementById("total").value = "0";
         document.getElementById("player1").setAttribute("disabled", "disabled");
         document.getElementById("player2").setAttribute("disabled", "disabled");
@@ -63,11 +67,14 @@ function rollDie() {
     }
     totalBox.value = currTotal.toString();
     if (isWinner()) {
-        var currentPlayerName = document.getElementById("current").innerText;
-        document.getElementById("winner-output").innerText = currentPlayerName + " wins!";
-        document.getElementById("roll").disabled = true;
-        document.getElementById("hold").disabled = true;
+        endGame();
     }
+}
+function endGame() {
+    var currentPlayerName = getCurrentPlayerName();
+    document.getElementById("winner-output").innerText = currentPlayerName + " wins!";
+    document.getElementById("roll").disabled = true;
+    document.getElementById("hold").disabled = true;
 }
 function holdDie() {
     var currTotal = getTotal();
@@ -87,7 +94,7 @@ function isWinner() {
     return false;
 }
 function getCurrentPlayerScoreBox() {
-    var currentPlayerName = document.getElementById("current").innerText;
+    var currentPlayerName = getCurrentPlayerName();
     var player1Name = getPlayerName("player1");
     var currentPlayerScoreBox = document.getElementById("score1");
     if (currentPlayerName != player1Name) {
