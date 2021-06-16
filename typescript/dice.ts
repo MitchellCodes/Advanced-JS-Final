@@ -1,3 +1,8 @@
+let turnNumber:number[] = [0];
+let player1Score:number[] = [0];
+let player2Score:number[] = [0];
+let turnCounter = 0;
+
 function generateRandomValue(minValue:number, maxValue:number):number{
     var random = Math.random(); // between 0 and 0.99
     
@@ -29,13 +34,20 @@ function changePlayers():void{
 
     //swap from player to player by comparing current name to player names
     //set currentPlayerName to the next player
-    if (currentPlayerName != player1Name) {
+    if (currentPlayerName != player1Name) { // if current player is player 2, switch to player 1
         currentPlayerName = player1Name;
     }
-    else {
+    else { // if current player is player 1, switch to player 2
         currentPlayerName = player2Name;
     }
     currentPlayerSpan.innerText = currentPlayerName;
+    
+    // keep track of that turn it is
+    turnCounter++;
+    if (turnCounter == 2) { // go to the next turn after both players get to roll
+        turnNumber.push(turnNumber.length);
+        turnCounter = 0;
+    }
 }
 
 window.onload = function(){
@@ -48,6 +60,11 @@ window.onload = function(){
 }
 
 function createNewGame(){
+    // set default values for arrays
+    turnNumber = [0];
+    player1Score = [0];
+    player2Score = [0];
+
     // reset the roll and hold buttons if someone won the last game
     (<HTMLButtonElement>document.getElementById("roll")).disabled = false;
     (<HTMLButtonElement>document.getElementById("hold")).disabled = false;
@@ -81,6 +98,14 @@ function createNewGame(){
     }
 }
 
+// helper function to get the current player's score array
+function getCurrentPlayerScoreArray():number[] {
+    if (getCurrentPlayerName() == getPlayerName("player1")) {
+        return player1Score;
+    }
+    return player2Score;
+}
+
 function rollDie():void{
     let totalBox = <HTMLInputElement>document.getElementById("total");
     let dieBox = <HTMLInputElement>document.getElementById("die");
@@ -96,6 +121,10 @@ function rollDie():void{
     if (roll == 1) {
         changePlayers();
         currTotal = 0;
+
+        // append the current player's previous score to their score array
+        let currentScore = parseInt(getCurrentPlayerScoreBox().value);
+        getCurrentPlayerScoreArray().push(currentScore);
     }
     
     //if the roll is greater than 1
@@ -121,6 +150,7 @@ function endGame() {
     document.getElementById("winner-output").innerText =  currentPlayerName + " wins!";
     (<HTMLButtonElement>document.getElementById("roll")).disabled = true;
     (<HTMLButtonElement>document.getElementById("hold")).disabled = true;
+    drawChart();
 }
 
 function holdDie():void{
@@ -133,8 +163,8 @@ function holdDie():void{
     let newScore = parseInt(currentScore.value) + currTotal;
     currentScore.value = newScore.toString();
 
-    // update the chart
-
+    // update the current player's score array
+    getCurrentPlayerScoreArray().push(newScore);
 
     //reset the turn total to 0
     currTotal = 0;
@@ -165,4 +195,24 @@ function getCurrentPlayerScoreBox():HTMLInputElement {
     }
 
     return currentPlayerScoreBox;
+}
+
+function drawChart() {
+    // draw the chart
+    let scoreChart = new Chart(document.getElementById("score-chart"), {
+        type: 'line',
+        data: {
+            labels: turnNumber,
+            datasets: [
+                {
+                    label: 'Player 1',
+                    data: player1Score,
+                },
+                {
+                    label: 'Player 2',
+                    data: player2Score,
+                }
+            ]
+        }
+    });
 }

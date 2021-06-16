@@ -1,3 +1,7 @@
+var turnNumber = [0];
+var player1Score = [0];
+var player2Score = [0];
+var turnCounter = 0;
 function generateRandomValue(minValue, maxValue) {
     var random = Math.random();
     random = Math.floor(random * maxValue) + minValue;
@@ -24,6 +28,11 @@ function changePlayers() {
         currentPlayerName = player2Name;
     }
     currentPlayerSpan.innerText = currentPlayerName;
+    turnCounter++;
+    if (turnCounter == 2) {
+        turnNumber.push(turnNumber.length);
+        turnCounter = 0;
+    }
 }
 window.onload = function () {
     var newGameBtn = document.getElementById("new_game");
@@ -32,6 +41,9 @@ window.onload = function () {
     document.getElementById("hold").onclick = holdDie;
 };
 function createNewGame() {
+    turnNumber = [0];
+    player1Score = [0];
+    player2Score = [0];
     document.getElementById("roll").disabled = false;
     document.getElementById("hold").disabled = false;
     document.getElementById("winner-output").innerText = "";
@@ -52,6 +64,12 @@ function createNewGame() {
         alert("Both players must have a name");
     }
 }
+function getCurrentPlayerScoreArray() {
+    if (getCurrentPlayerName() == getPlayerName("player1")) {
+        return player1Score;
+    }
+    return player2Score;
+}
 function rollDie() {
     var totalBox = document.getElementById("total");
     var dieBox = document.getElementById("die");
@@ -61,6 +79,8 @@ function rollDie() {
     if (roll == 1) {
         changePlayers();
         currTotal = 0;
+        var currentScore = parseInt(getCurrentPlayerScoreBox().value);
+        getCurrentPlayerScoreArray().push(currentScore);
     }
     if (roll > 1) {
         currTotal += roll;
@@ -75,12 +95,14 @@ function endGame() {
     document.getElementById("winner-output").innerText = currentPlayerName + " wins!";
     document.getElementById("roll").disabled = true;
     document.getElementById("hold").disabled = true;
+    drawChart();
 }
 function holdDie() {
     var currTotal = getTotal();
     var currentScore = getCurrentPlayerScoreBox();
     var newScore = parseInt(currentScore.value) + currTotal;
     currentScore.value = newScore.toString();
+    getCurrentPlayerScoreArray().push(newScore);
     currTotal = 0;
     document.getElementById("total").value = currTotal.toString();
     changePlayers();
@@ -101,4 +123,22 @@ function getCurrentPlayerScoreBox() {
         currentPlayerScoreBox = document.getElementById("score2");
     }
     return currentPlayerScoreBox;
+}
+function drawChart() {
+    var scoreChart = new Chart(document.getElementById("score-chart"), {
+        type: 'line',
+        data: {
+            labels: turnNumber,
+            datasets: [
+                {
+                    label: 'Player 1',
+                    data: player1Score,
+                },
+                {
+                    label: 'Player 2',
+                    data: player2Score,
+                }
+            ]
+        }
+    });
 }
